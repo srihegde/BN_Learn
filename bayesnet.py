@@ -9,6 +9,7 @@ class BayesNet():
 	def __init__(self, num_nodes):
 		self.num_nodes = num_nodes
 		self.grph = np.zeros((num_nodes, num_nodes))
+		self.num_edges = 0
 
 	def addEdge(self, a, b):
 		assert ((a >= 0 or a < self.num_nodes) or (b >= 0 or b < self.num_nodes)), 'Vertex index out of bounds!'
@@ -17,18 +18,28 @@ class BayesNet():
 			self.grph[a][b] = 0
 			# print 'Could not add edge because it\'s no longer a DAG.'
 			return False
+		self.num_edges += 1;
 		return True
 
 	def deleteEdge(self, a, b):
 		assert ((a >= 0 or a < self.num_nodes) or (b >= 0 or b < self.num_nodes)), 'Vertex index out of bounds!'
-		self.grph[a][b] = 0
+		if self.grph[a][b] == 1:
+			self.grph[a][b] = 0
+			self.num_edges -= 1
+			return True
+		return False
+
 
 	def reverseEdge(self, a, b):
 		assert ((a >= 0 or a < self.num_nodes) or (b >= 0 or b < self.num_nodes)), 'Vertex index out of bounds!'
-		if self.grph[a][b] == True:
+		if self.grph[a][b] == 1:
 			self.deleteEdge(a,b)
 			if self.addEdge(b,a) == False:
 				self.addEdge(a,b)
+				return False
+			return True
+		return False
+
 			
 
 	def isEdge(self, a, b):
@@ -36,6 +47,7 @@ class BayesNet():
 		if self.grph[a][b] == 1:
 			return True
 		return False
+
 
 	def isDAG(self):
 		path = set()
@@ -54,8 +66,9 @@ class BayesNet():
 			return True
 
 		return any(visit(v) for v in xrange(self.num_nodes))
+		
 
-	def showNet(self):
+	def showNet(self, fname = 'bn_'+'{:%Y-%m-%d_%H:%M:%S}'.format(datetime.datetime.now())+'.png'):
 		graph = pydot.Dot(graph_type='digraph')
 		
 		for i in xrange(self.num_nodes):
@@ -64,7 +77,6 @@ class BayesNet():
 					edge = pydot.Edge(str(i+1), str(j+1))
 					graph.add_edge(edge)
 
-		fname = 'bn_'+'{:%Y-%m-%d_%H:%M:%S}'.format(datetime.datetime.now())+'.png'
 		graph.write_png(fname)
 		print 'Graph saved as '+ fname
 		time.sleep(2)
