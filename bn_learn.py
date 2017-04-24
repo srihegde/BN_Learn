@@ -1,7 +1,6 @@
 import numpy as np
 import math
 from random import randint, random
-import xlrd as xl
 
 import bayesnet as bn
 

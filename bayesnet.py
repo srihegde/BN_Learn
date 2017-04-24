@@ -1,5 +1,6 @@
 import numpy as np
 import pydot
+import math
 from random import randint, random
 import time
 import datetime
@@ -90,13 +91,57 @@ class BayesNet():
 		time.sleep(2)
 
 
+	# To infer from the dataset
+	def infer(self, M):
+		return randint(1,M)
+
+
+	# Utility to convert a number to Base3 array
+	def base3(self, n, l):
+		s = ''
+		while n:
+			s += str(n%3)
+			n /= 3
+		s = s+('0'*(l-len(s)))
+		s = s[::-1]
+		return [int(s[i]) for i in xrange(len(s))]
+
+
+	# Calculate log-likelihood from the dataset
+	def calc_LHood(self, M):
+		lhood = 0
+		for i in xrange(self.num_nodes):
+			num_par_i = self.grph[:,i].tolist().count(1)
+			tau = 3**num_par_i
+			sig = 0
+			for j in xrange(tau):
+				asg = self.base3(j,num_par_i)
+				g = 0
+				for k in xrange(3):
+					g += (math.lgamma((tau/3.) + self.infer(M)) - math.lgamma(tau/3.))
+				sig += (math.lgamma(tau) - math.lgamma(tau + self.infer(M)) + g)
+			lhood += sig
+
+		return lhood
+
+
+	# Utility for getting independent parameters of BN
+	def getFreeParams(self):
+		cnt = 0
+		for i in xrange(self.num_nodes):
+			if (self.grph[:,i].tolist().count(1) == 0):
+				cnt += 1
+
+		return 3*cnt
+
+
 	# Computing BIC score for a given Bayesian Network
-	def getBIC(self):
+	def getBIC(self, M):
 		# Temp scoring. Need to change
 		nodes = self.num_nodes
 		prior = 2*self.num_edges/float(nodes*(nodes-1))
-		lhood = random()
-		self.BIC = lhood*prior
+		lhood = self.calc_LHood(M) #random()
+		self.BIC = lhood + math.log(prior) - math.log(M)*self.getFreeParams()/2.0
 		return self.BIC
 
 
@@ -105,5 +150,8 @@ class BayesNet():
 	
 	bnet = BayesNet(3)
 	bnet.addEdge(0,1)
-	bnet.addEdge(1,0)
-	bnet.showNet()'''
+	bnet.addEdge(1,2)
+	bnet.addEdge(0,1)
+	bnet.showNet('test.png')
+
+	print bnet.getBIC(1000)'''
