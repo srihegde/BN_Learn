@@ -40,7 +40,7 @@ def searchSimAnn(bnet, conv_delta, temp = 1000, delta = 1):
 	while temp > 0:
 
 		new_bn = pickNextBN(best_bn)
-		del_score = new_bn.getBIC() - best_bn.getBIC()
+		del_score = new_bn.getBIC(1000) - best_bn.getBIC(1000)
 		
 		if del_score > 0:
 			best_bn = new_bn
