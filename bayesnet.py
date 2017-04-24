@@ -101,9 +101,9 @@ class BayesNet():
 
 
 
-if __name__ == '__main__':
+'''if __name__ == '__main__':
 	
 	bnet = BayesNet(3)
 	bnet.addEdge(0,1)
 	bnet.addEdge(1,0)
-	bnet.showNet()
+	bnet.showNet()'''
