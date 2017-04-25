@@ -1,5 +1,6 @@
 import numpy as np
 import math
+import datetime
 from random import randint, random
 
 import bayesnet as bn
@@ -35,12 +36,13 @@ def pickNextBN(bnet):
 
 
 # Search the search space using Simulated Annealing
-def searchSimAnn(bnet, conv_delta, temp = 1000, delta = 1):
+def searchSimAnn(bnet, temp = 1000, delta = 1):
 	best_bn = bnet
+	max_temp = temp
 	while temp > 0:
 
 		new_bn = pickNextBN(best_bn)
-		del_score = new_bn.getBIC(1000) - best_bn.getBIC(1000)
+		del_score = new_bn.getBIC() - best_bn.getBIC()
 		
 		if del_score > 0:
 			best_bn = new_bn
@@ -50,9 +52,9 @@ def searchSimAnn(bnet, conv_delta, temp = 1000, delta = 1):
 				best_bn = new_bn
 		
 		if temp%10 == 0:
-			print 'Iteration ',1000-temp,':'
+			print '{:%Y-%m-%d_%H:%M:%S}'.format(datetime.datetime.now())+' ---','Iteration ',max_temp-temp,':'
 		if(temp%250 == 0):
-			best_bn.showNet('interBN_'+str(1000-temp)+'.png')
+			best_bn.showNet('interBN_'+str(max_temp-temp)+'.png')
 		temp -= delta
 
 	return best_bn
@@ -61,9 +63,10 @@ def searchSimAnn(bnet, conv_delta, temp = 1000, delta = 1):
 if __name__ == '__main__':
 
 	data_nodes = 11		# Need to add data processing
-	bnet = bn.BayesNet(data_nodes)
+	labels = ['praf','pmek','plcg','PIP2','PIP3','p44/42','pakts473','PKA','PKC','P38','pjnk']
+	bnet = bn.BayesNet(data_nodes, labels)
 	bnet = randInitBN(bnet)
 	bnet.showNet('initialBN.png')
 
-	bnet = searchSimAnn(bnet, 1, 1000)
-	bnet.showNet('finalBN.png')
+	bnet = searchSimAnn(bnet, 20)
+	bnet.showNet('./learntStructure/finalBN.png')

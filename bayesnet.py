@@ -7,18 +7,24 @@ import datetime
 
 class BayesNet():
 	
-	#Loading Data
-	datum = []
-	
 
 	"""Modelling Bayesian Network"""
-	def __init__(self, num_nodes):	
+	def __init__(self, num_nodes, labels = []):	
 		self.num_nodes = num_nodes
 		self.grph = np.zeros((num_nodes, num_nodes))
 		self.num_edges = 0
 		self.BIC = 0
+		self.datum = []
+
+		if len(labels) == 0:
+			self.labels = [str(i) for i in xrange(self.num_nodes)]
+		else:
+			assert (len(labels) == num_nodes), 'Label size inconsistent with number of nodes!'
+			self.labels = labels
+
 		self.loadData('data/1.csv')
 		self.loadData('data/2.csv')
+
 
 	def addEdge(self, a, b):
 		assert ((a >= 0 or a < self.num_nodes) or (b >= 0 or b < self.num_nodes)), 'Vertex index out of bounds!'
@@ -29,6 +35,7 @@ class BayesNet():
 			return False
 		self.num_edges += 1;
 		return True
+
 
 	def deleteEdge(self, a, b):
 		assert ((a >= 0 or a < self.num_nodes) or (b >= 0 or b < self.num_nodes)), 'Vertex index out of bounds!'
@@ -90,12 +97,12 @@ class BayesNet():
 		graph = pydot.Dot(graph_type='digraph')
 		
 		for i in xrange(self.num_nodes):
-			graph.add_node(pydot.Node(str(i+1)))
+			graph.add_node(pydot.Node(self.labels[i]))
 
 		for i in xrange(self.num_nodes):
 			for j in xrange(self.num_nodes):
 				if self.grph[i][j] == 1:
-					edge = pydot.Edge(str(i+1), str(j+1))
+					edge = pydot.Edge(self.labels[i], self.labels[j])
 					graph.add_edge(edge)
 
 		graph.write_png(fname)
@@ -104,7 +111,7 @@ class BayesNet():
 
 
 	# To infer from the dataset
-	#Assuming the indices to be 0-indexed
+	# Assuming the indices to be 0-indexed
 	def infer(self, index, asgs):
 		samples = len(self.datum)
 		num_of_parents = len(asgs)
@@ -121,6 +128,7 @@ class BayesNet():
 			if (match==True):
 				hits = hits+1
 		return hits
+
 
 	# Utility to convert a number to Base3 array
 	def base3(self, n, l):
@@ -167,13 +175,14 @@ class BayesNet():
 
 
 	# Computing BIC score for a given Bayesian Network
-	def getBIC(self, M):
+	def getBIC(self):
 		# Temp scoring. Need to change
 		nodes = self.num_nodes
 		prior = 2*self.num_edges/float(nodes*(nodes-1))
 		lhood = self.calc_LHood() #random()
-		self.BIC = lhood + math.log(prior) - math.log(M)*self.getFreeParams()/2.0
+		self.BIC = lhood + math.log(prior) - math.log(len(self.datum))*self.getFreeParams()/2.0
 		return self.BIC
+
 
 	#loading samples
 	def loadData(self, filename):
