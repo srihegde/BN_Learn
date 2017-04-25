@@ -7,12 +7,17 @@ import datetime
 
 class BayesNet():
 	
+	#Loading Data
+	datum = []
+	
+
 	"""Modelling Bayesian Network"""
-	def __init__(self, num_nodes):
+	def __init__(self, num_nodes):	
 		self.num_nodes = num_nodes
 		self.grph = np.zeros((num_nodes, num_nodes))
 		self.num_edges = 0
 		self.BIC = 0
+		self.loadData()
 
 	def addEdge(self, a, b):
 		assert ((a >= 0 or a < self.num_nodes) or (b >= 0 or b < self.num_nodes)), 'Vertex index out of bounds!'
@@ -98,9 +103,23 @@ class BayesNet():
 
 
 	# To infer from the dataset
-	def infer(self, vars, asgs):
-		return randint(1,1000)
-
+	#Assuming the indices to be 0-indexed
+	def infer(self, index, asgs):
+		samples = len(self.datum)
+		num_of_parents = len(asgs)
+	
+		if(num_of_parents<=0):
+			return 0
+	
+		hits = 0
+		for i in xrange(samples):
+			match = True
+			for j in xrange(num_of_parents):
+				if(self.datum[i][index[j]] != asgs[j]):
+					match = False
+			if (match==True):
+				hits = hits+1
+		return hits
 
 	# Utility to convert a number to Base3 array
 	def base3(self, n, l):
@@ -154,6 +173,17 @@ class BayesNet():
 		lhood = self.calc_LHood() #random()
 		self.BIC = lhood + math.log(prior) - math.log(M)*self.getFreeParams()/2.0
 		return self.BIC
+
+	#loading samples
+	def loadData(self):
+		with open('data/1.csv') as fp:
+			for line in fp:
+				l = [int(s) for s in line.split(',')]
+				self.datum.append(l)
+		with open('data/2.csv') as fp:
+			for line in fp:
+				l = [int(s) for s in line.split(',')]
+				self.datum.append(l)
 
 
 
