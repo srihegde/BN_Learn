@@ -17,7 +17,8 @@ class BayesNet():
 		self.grph = np.zeros((num_nodes, num_nodes))
 		self.num_edges = 0
 		self.BIC = 0
-		self.loadData()
+		self.loadData('data/1.csv')
+		self.loadData('data/2.csv')
 
 	def addEdge(self, a, b):
 		assert ((a >= 0 or a < self.num_nodes) or (b >= 0 or b < self.num_nodes)), 'Vertex index out of bounds!'
@@ -175,16 +176,11 @@ class BayesNet():
 		return self.BIC
 
 	#loading samples
-	def loadData(self):
-		with open('data/1.csv') as fp:
+	def loadData(self, filename):
+		with open(filename) as fp:
 			for line in fp:
 				l = [int(s) for s in line.split(',')]
 				self.datum.append(l)
-		with open('data/2.csv') as fp:
-			for line in fp:
-				l = [int(s) for s in line.split(',')]
-				self.datum.append(l)
-
 
 
 '''if __name__ == '__main__':
