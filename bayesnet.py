@@ -43,7 +43,13 @@ class BayesNet():
 			return True
 		return False
 
-			
+
+	def getParents(self, node):
+		assert (node >= 0 or node < self.num_nodes), 'Vertex index out of bounds!'
+		nlist = self.grph[:,node].tolist()
+		plist = [i for i, x in enumerate(nlist) if x == 1]
+		return plist
+
 
 	def isEdge(self, a, b):
 		assert ((a >= 0 or a < self.num_nodes) or (b >= 0 or b < self.num_nodes)), 'Vertex index out of bounds!'
@@ -92,8 +98,8 @@ class BayesNet():
 
 
 	# To infer from the dataset
-	def infer(self, M):
-		return randint(1,M)
+	def infer(self, vars, asgs):
+		return randint(1,1000)
 
 
 	# Utility to convert a number to Base3 array
@@ -108,18 +114,23 @@ class BayesNet():
 
 
 	# Calculate log-likelihood from the dataset
-	def calc_LHood(self, M):
+	def calc_LHood(self):
 		lhood = 0
 		for i in xrange(self.num_nodes):
 			num_par_i = self.grph[:,i].tolist().count(1)
+			pars = self.getParents(i)
 			tau = 3**num_par_i
 			sig = 0
+
 			for j in xrange(tau):
 				asg = self.base3(j,num_par_i)
 				g = 0
+				
 				for k in xrange(3):
-					g += (math.lgamma((tau/3.) + self.infer(M)) - math.lgamma(tau/3.))
-				sig += (math.lgamma(tau) - math.lgamma(tau + self.infer(M)) + g)
+					g += (math.lgamma((tau/3.) + self.infer([i]+pars, [k]+asg)) - math.lgamma(tau/3.))
+				
+				sig += (math.lgamma(tau) - math.lgamma(tau + self.infer(pars, asg)) + g)
+			
 			lhood += sig
 
 		return lhood
@@ -140,7 +151,7 @@ class BayesNet():
 		# Temp scoring. Need to change
 		nodes = self.num_nodes
 		prior = 2*self.num_edges/float(nodes*(nodes-1))
-		lhood = self.calc_LHood(M) #random()
+		lhood = self.calc_LHood() #random()
 		self.BIC = lhood + math.log(prior) - math.log(M)*self.getFreeParams()/2.0
 		return self.BIC
 
@@ -148,10 +159,12 @@ class BayesNet():
 
 '''if __name__ == '__main__':
 	
-	bnet = BayesNet(3)
+	bnet = BayesNet(4)
 	bnet.addEdge(0,1)
+	bnet.addEdge(3,2)
 	bnet.addEdge(1,2)
-	bnet.addEdge(0,1)
+	bnet.addEdge(0,2)
 	bnet.showNet('test.png')
 
-	print bnet.getBIC(1000)'''
+	print bnet.getBIC(1000)
+	# print bnet.getParents(2)'''
