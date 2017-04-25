@@ -166,5 +166,8 @@ class BayesNet():
 	bnet.addEdge(0,2)
 	bnet.showNet('test.png')
 
-	print bnet.getBIC(1000)
-	# print bnet.getParents(2)'''
+	# print bnet.getBIC(1000)
+	print bnet.getParents(0)
+	print bnet.getParents(1)
+	print bnet.getParents(2)
+	print bnet.getParents(3)'''
