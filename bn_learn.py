@@ -36,11 +36,12 @@ def pickNextBN(bnet):
 
 
 # Search the search space using Simulated Annealing
-def searchSimAnn(bnet, temp = 1000, delta = 1):
+def searchSimAnn(bnet, temp = 1000, delta = 1, snapInterval = 50):
 	best_bn = bnet
-	max_temp = temp
+	itr = 0
 	while temp > 0:
 
+		itr += 1
 		new_bn = pickNextBN(best_bn)
 		del_score = new_bn.getBIC() - best_bn.getBIC()
 		
@@ -51,10 +52,10 @@ def searchSimAnn(bnet, temp = 1000, delta = 1):
 			if r < math.exp(del_score/temp):
 				best_bn = new_bn
 		
-		if temp%10 == 0:
-			print '{:%Y-%m-%d_%H:%M:%S}'.format(datetime.datetime.now())+' ---','Iteration ',max_temp-temp,':'
-		if(temp%250 == 0):
-			best_bn.showNet('interBN_'+str(max_temp-temp)+'.png')
+		if itr%10 == 0:
+			print '{:%Y-%m-%d_%H:%M:%S}'.format(datetime.datetime.now())+' ---','Iteration ',itr,': Del_BIC = ', math.abs(del_score)
+		if(itr%snapInterval == 0):
+			best_bn.showNet('interBN_'+str(itr)+'.png')
 		temp -= delta
 
 	return best_bn
@@ -68,5 +69,5 @@ if __name__ == '__main__':
 	bnet = randInitBN(bnet)
 	bnet.showNet('initialBN.png')
 
-	bnet = searchSimAnn(bnet, 20)
+	bnet = searchSimAnn(bnet, 100, 0.1)
 	bnet.showNet('./learntStructure/finalBN.png')
