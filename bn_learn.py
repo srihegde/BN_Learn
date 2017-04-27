@@ -1,5 +1,6 @@
 import numpy as np
 import math
+import copy
 import datetime
 from random import randint, random
 
@@ -15,28 +16,29 @@ def randInitBN(bnet):
 
 # Randomly pick next element of search space
 def pickNextBN(bnet):
+	tmp_bn = copy.deepcopy(bnet)
 	opt = randint(0,2)
 	cnt,attempts = 0,20
 	if opt == 0:
-		while not bnet.addEdge(randint(0,bnet.num_nodes-1), randint(0,bnet.num_nodes-1)) and cnt < attempts:
+		while not tmp_bn.addEdge(randint(0,tmp_bn.num_nodes-1), randint(0,tmp_bn.num_nodes-1)) and cnt < attempts:
 			cnt += 1
 		if cnt == attempts:
-			return pickNextBN(bnet)
+			return pickNextBN(tmp_bn)
 	elif opt == 1:
-		while not bnet.reverseEdge(randint(0,bnet.num_nodes-1), randint(0,bnet.num_nodes-1)) and cnt < attempts:
+		while not tmp_bn.reverseEdge(randint(0,tmp_bn.num_nodes-1), randint(0,tmp_bn.num_nodes-1)) and cnt < attempts:
 			cnt += 1
 		if cnt == attempts:
-			return pickNextBN(bnet)
+			return pickNextBN(tmp_bn)
 	else:
-		while not bnet.deleteEdge(randint(0,bnet.num_nodes-1), randint(0,bnet.num_nodes-1)) and cnt < attempts:
+		while not tmp_bn.deleteEdge(randint(0,tmp_bn.num_nodes-1), randint(0,tmp_bn.num_nodes-1)) and cnt < attempts:
 			cnt += 1
 		if cnt == attempts:
-			return pickNextBN(bnet)
-	return bnet
+			return pickNextBN(tmp_bn)
+	return tmp_bn
 
 
 # Search the search space using Simulated Annealing
-def searchSimAnn(bnet, temp = 1000, delta = 1, snapInterval = 50):
+def searchSimAnn(bnet, temp = 1000, delta = 1, snapInterval = 50, printInterval = 10):
 	best_bn = bnet
 	itr = 0
 	while temp > 0:
@@ -52,8 +54,8 @@ def searchSimAnn(bnet, temp = 1000, delta = 1, snapInterval = 50):
 			if r < math.exp(del_score/temp):
 				best_bn = new_bn
 		
-		if itr%10 == 0:
-			print '{:%Y-%m-%d_%H:%M:%S}'.format(datetime.datetime.now())+' ---','Iteration ',itr,': Del_BIC = ', math.abs(del_score)
+		if itr%printInterval == 0:
+			print '{:%Y-%m-%d_%H:%M:%S}'.format(datetime.datetime.now())+' ---','Iteration ',itr,': Del_BIC = ', math.fabs(del_score),'  New BIC = ', new_bn.getBIC(), '  Old BIC = ', best_bn.getBIC()
 		if(itr%snapInterval == 0):
 			best_bn.showNet('interBN_'+str(itr)+'.png')
 		temp -= delta
@@ -69,5 +71,5 @@ if __name__ == '__main__':
 	bnet = randInitBN(bnet)
 	bnet.showNet('initialBN.png')
 
-	bnet = searchSimAnn(bnet, 100, 0.1)
+	bnet = searchSimAnn(bnet, 100, 0.1,1)
 	bnet.showNet('./learntStructure/finalBN.png')

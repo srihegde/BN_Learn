@@ -194,15 +194,25 @@ class BayesNet():
 
 '''if __name__ == '__main__':
 	
-	bnet = BayesNet(4)
+	bnet = BayesNet(11)
 	bnet.addEdge(0,1)
-	bnet.addEdge(3,2)
-	bnet.addEdge(1,2)
-	bnet.addEdge(0,2)
-	bnet.showNet('test.png')
+	bnet.addEdge(2,3)
+	bnet.addEdge(4,5)
+	bnet.addEdge(6,7)
+	bnet.addEdge(8,9)
+	bnet.addEdge(10,0)
 
-	# print bnet.getBIC(1000)
-	print bnet.getParents(0)
-	print bnet.getParents(1)
-	print bnet.getParents(2)
-	print bnet.getParents(3)'''
+	bnet.showNet('test.png')
+	print bnet.getBIC()
+	
+	bnet.reverseEdge(6,7)
+	bnet.showNet('test1.png')
+	print bnet.getBIC()
+
+	bnet.addEdge(10,2)
+	bnet.showNet('test2.png')
+	print bnet.getBIC()
+
+	bnet.deleteEdge(7,6)
+	bnet.showNet('test3.png')
+	print bnet.getBIC()'''
