@@ -17,6 +17,7 @@ def randInitBN(bnet):
 # Randomly pick next element of search space
 def pickNextBN(bnet):
 	tmp_bn = copy.deepcopy(bnet)
+	# tmp_bn = bnet
 	opt = randint(0,2)
 	cnt,attempts = 0,20
 	if opt == 0:
@@ -48,16 +49,18 @@ def searchSimAnn(bnet, temp = 1000, delta = 1, snapInterval = 50, printInterval 
 		del_score = new_bn.getBIC() - best_bn.getBIC()
 		
 		if del_score > 0:
-			best_bn = new_bn
+			best_bn = copy.deepcopy(new_bn)
+			# best_bn = new_bn
 		else:
 			r = random()
 			if r < math.exp(del_score/temp):
-				best_bn = new_bn
+				best_bn = copy.deepcopy(new_bn)
+				# best_bn = new_bn
 		
 		if itr%printInterval == 0:
 			print '{:%Y-%m-%d_%H:%M:%S}'.format(datetime.datetime.now())+' ---','Iteration ',itr,': Del_BIC = ', math.fabs(del_score),'  New BIC = ', new_bn.getBIC(), '  Old BIC = ', best_bn.getBIC()
 		if(itr%snapInterval == 0):
-			best_bn.showNet('interBN_'+str(itr)+'.png')
+			best_bn.showNet('./interm/interBN_'+str(itr)+'.png')
 		temp -= delta
 
 	return best_bn
@@ -71,5 +74,5 @@ if __name__ == '__main__':
 	bnet = randInitBN(bnet)
 	bnet.showNet('initialBN.png')
 
-	bnet = searchSimAnn(bnet, 100, 0.1,1)
+	bnet = searchSimAnn(bnet, 100, 0.1,1,1)
 	bnet.showNet('./learntStructure/finalBN.png')

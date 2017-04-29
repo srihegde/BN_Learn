@@ -125,6 +125,7 @@ class BayesNet():
 			for j in xrange(num_of_parents):
 				if(self.datum[i][index[j]] != asgs[j]):
 					match = False
+					break
 			if (match==True):
 				hits = hits+1
 		return hits
@@ -155,13 +156,15 @@ class BayesNet():
 				g = 0
 				
 				for k in xrange(3):
-					g += (math.lgamma((tau/3.) + self.infer([i]+pars, [k]+asg)) - math.lgamma(tau/3.))
+					g += (math.lgamma((3./tau) + self.infer([i]+pars, [k]+asg)) - math.lgamma(3./tau))
 				
-				sig += (math.lgamma(tau) - math.lgamma(tau + self.infer(pars, asg)) + g)
+				sig += (math.lgamma(1./tau) - math.lgamma(tau + self.infer(pars, asg)) + g)
+				# print sig
 			
 			lhood += sig
+			# print lhood
 
-		return lhood
+		return -1*lhood
 
 
 	# Utility for getting independent parameters of BN
