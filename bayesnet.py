@@ -1,7 +1,4 @@
 #mdm
-#mkm
-#kkpnkbhbh
-
 
 import numpy as np
 import pydot
@@ -132,9 +129,6 @@ class BayesNet():
 					match = False
 			if (match==True):
 				hits = hits+1
-		#print hits
-		#print len(self.datum)
-		#print ((hits*1.0)/len(self.datum))
 		return ((hits*1.0)/len(self.datum))
 
 
