@@ -1,3 +1,5 @@
+#mdm
+
 import numpy as np
 import pydot
 import math
@@ -128,7 +130,7 @@ class BayesNet():
 					break
 			if (match==True):
 				hits = hits+1
-		return hits
+		return ((hits*1.0)/len(self.datum))
 
 
 	# Utility to convert a number to Base3 array
@@ -144,6 +146,7 @@ class BayesNet():
 
 	# Calculate log-likelihood from the dataset
 	def calc_LHood(self):
+		bias = 0.1
 		lhood = 0
 		for i in xrange(self.num_nodes):
 			num_par_i = self.grph[:,i].tolist().count(1)
@@ -153,18 +156,27 @@ class BayesNet():
 
 			for j in xrange(tau):
 				asg = self.base3(j,num_par_i)
-				g = 0
-				
 				for k in xrange(3):
-					g += (math.lgamma((3./tau) + self.infer([i]+pars, [k]+asg)) - math.lgamma(3./tau))
+					joint_probab = self.infer([i]+pars, [k]+asg)
+					val = joint_probab*(math.log(joint_probab+bias)-math.log(self.infer(pars,asg)+bias)-math.log(self.infer([i],[k])+bias))
+					sig = sig+val
+			for k in xrange(3):
+				val = 0
+				for j in xrange(tau):
+					asg = self.base3(j,num_par_i)
+					val = val + self.infer([i]+pars,[k]+asg)
+				sig = sig + (val*self.infer([i],[k]))
 				
-				sig += (math.lgamma(1./tau) - math.lgamma(tau + self.infer(pars, asg)) + g)
-				# print sig
+				#for k in xrange(3):
+				#	g += (math.lgamma((tau/3.) + self.infer([i]+pars, [k]+asg)) - math.lgamma(tau/3.))
+				#
+				#sig += (math.lgamma(tau) - math.lgamma(tau + self.infer(pars, asg)) + g)
 			
 			lhood += sig
-			# print lhood
+			#print "lhood"
+			#print lhood
 
-		return -1*lhood
+		return lhood
 
 
 	# Utility for getting independent parameters of BN
@@ -183,7 +195,10 @@ class BayesNet():
 		nodes = self.num_nodes
 		prior = 2*self.num_edges/float(nodes*(nodes-1))
 		lhood = self.calc_LHood() #random()
-		self.BIC = lhood + math.log(prior) - math.log(len(self.datum))*self.getFreeParams()/2.0
+		#self.BIC = lhood + math.log(prior) - math.log(len(self.datum))*self.getFreeParams()/2.0
+		self.BIC = lhood - math.log(len(self.datum))*self.getFreeParams()/2.0
+		#self.BIC = lhood
+		print self.BIC
 		return self.BIC
 
 

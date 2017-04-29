@@ -58,7 +58,7 @@ def searchSimAnn(bnet, temp = 1000, delta = 1, snapInterval = 50, printInterval 
 				# best_bn = new_bn
 		
 		if itr%printInterval == 0:
-			print '{:%Y-%m-%d_%H:%M:%S}'.format(datetime.datetime.now())+' ---','Iteration ',itr,': Del_BIC = ', math.fabs(del_score),'  New BIC = ', new_bn.getBIC(), '  Old BIC = ', best_bn.getBIC()
+			print '{:%Y-%m-%d_%H:%M:%S}'.format(datetime.datetime.now())+' ---','Iteration ',itr,': Del_BIC = ', math.fabs(del_score),'  New BIC = ', new_bn.getBIC(), '  Best BIC = ', best_bn.getBIC()
 		if(itr%snapInterval == 0):
 			best_bn.showNet('./interm/interBN_'+str(itr)+'.png')
 		temp -= delta
